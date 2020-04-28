@@ -53,7 +53,16 @@ class CommandTracing(pymongo.monitoring.CommandListener):
         if scope is None:
             return
         span = scope.span
-        span.set_tag(tags.ERROR, True)
         span.set_tag('event.failure', json.dumps(event.failure))
         span.set_tag('reported_duration', event.duration_micros)
+        span.set_tag(tags.ERROR, True)
+
+        err_msg = event.failure.get('errmsg')
+        if err_msg:
+            span.set_tag('sfx.error.message', err_msg)
+
+        err_code = event.failure.get('codeName')
+        if err_code:
+            span.set_tag('sfx.error.kind', err_code)
+
         scope.close()
