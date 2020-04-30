@@ -114,6 +114,9 @@ class TestCommandTracing(MongoTest):
         with pytest.raises(OperationFailure):
             collection.insert_many(docs)
 
+        expected_failure = dict(code=2, codeName='BadValue', ok=0.0,
+                                errmsg="cannot use 'w' > 1 when a host is not replicated")
+
         spans = tracer.finished_spans()
         assert len(spans) == 1
         span = spans[0]
@@ -125,8 +128,9 @@ class TestCommandTracing(MongoTest):
         assert span.tags[tags.DATABASE_INSTANCE] == db_name
         assert span.tags['reported_duration']
         assert span.tags[tags.ERROR] is True
-        expected_failure = dict(code=2, codeName='BadValue', ok=0.0,
-                                errmsg="cannot use 'w' > 1 when a host is not replicated")
+        assert span.tags['sfx.error.kind'] == expected_failure['codeName']
+        assert span.tags['sfx.error.message'] == expected_failure['errmsg']
+
         assert json.loads(span.tags['event.failure']) == expected_failure
         assert 'event.reply' not in span.tags
 
@@ -311,6 +315,8 @@ class TestCommandTracing(MongoTest):
         assert span.tags[tags.DATABASE_INSTANCE] == db_name
         assert span.tags['reported_duration']
         assert span.tags[tags.ERROR] is True
+        assert span.tags['sfx.error.kind'] == 'JSInterpreterFailure'
+        assert 'Error: Bomb!' in span.tags['sfx.error.message']
 
         failure = json.loads(span.tags['event.failure'])
         assert failure['code'] == 139

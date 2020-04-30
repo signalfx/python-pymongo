@@ -88,6 +88,10 @@ class TestCommandTracing(object):
         tracer = MockTracer()
         tracing = CommandTracing(tracer, span_tags=dict(one=123))
         event = MockEvent()
+        event.failure = {
+            'errmsg': 'error message',
+            'codeName': 'SomeError'
+        }
         tracing.started(event)
         scope = tracing._scopes.get('request_id')
         tracing.failed(event)
@@ -96,3 +100,5 @@ class TestCommandTracing(object):
         tags = scope.span.tags
         assert tags['event.failure'] == json.dumps(event.failure)
         assert tags['reported_duration'] == event.duration_micros
+        assert tags['sfx.error.message'] == event.failure['errmsg']
+        assert tags['sfx.error.kind'] == event.failure['codeName']
