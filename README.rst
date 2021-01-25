@@ -29,7 +29,7 @@ Run the following command:
 
 .. code-block:: 
 
-    $ pip install pymongo-opentracing
+    $ pip install signalfx-instrumentation-pymongo
 
 Usage
 =====

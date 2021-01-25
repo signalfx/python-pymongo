@@ -30,8 +30,8 @@ test_requirements = ['mock', 'pytest']
 integration_test_requirements = ['docker']
 
 setup(
-    name='PyMongo-OpenTracing',
-    version='0.0.3post0',
+    name='signalfx-instrumentation-pymongo',
+    version='1.0.0',
     url='http://github.com/signalfx/python-pymongo',
     download_url='http://github.com/signalfx/python-pymongo/tarball/master',
     author='SignalFx, Inc.',
